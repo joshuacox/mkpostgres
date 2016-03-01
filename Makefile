@@ -37,7 +37,7 @@ postgresqlimport:
 	docker run \
 	--cidfile="postgresqltemp" \
 	--name `cat NAME`-postgresqltemp \
-	-e postgresql_ROOT_PASSWORD=`cat postgresql_PASS` \
+	-e POSTGRES_ROOT_PASSWORD=`cat POSTGRES_PASS` \
 	-v ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
 	-d \
 	postgres:9
