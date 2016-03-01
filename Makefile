@@ -12,7 +12,6 @@ help:
 	@echo ""   4. make enter     - execute an interactive bash in docker container
 	@echo ""   3. make logs      - follow the logs of docker container
 
-
 # run a  container that requires postgresql temporarily
 temp: POSTGRES_PASS NAME rm postgresqltemp
 
