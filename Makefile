@@ -12,7 +12,6 @@ help:
 	@echo ""   4. make enter     - execute an interactive bash in docker container
 	@echo ""   3. make logs      - follow the logs of docker container
 
-
 # run a  container that requires postgresql temporarily
 temp: POSTGRES_VERSION pull POSTGRES_PASS NAME rm postgresqltemp
 
@@ -39,8 +38,8 @@ postgresqlimport:
 	docker run \
 	--cidfile="postgresqltemp" \
 	--name `cat NAME`-postgresqltemp \
-	-e postgresql_ROOT_PASSWORD=`cat postgresql_PASS` \
-	-v ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
+	-e POSTGRES_ROOT_PASSWORD=`cat POSTGRES_PASS` \
+	-v `pwd`/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
 	-d \
 	postgres:$(POSTGRES_VERSION)
 
@@ -77,6 +76,9 @@ enter:
 
 logs:
 	docker logs -f `cat postgresqlcid`
+
+templogs:
+	docker logs -f `cat postgresqltemp`
 
 NAME:
 	@while [ -z "$$NAME" ]; do \
