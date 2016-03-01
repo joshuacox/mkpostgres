@@ -14,44 +14,52 @@ help:
 
 
 # run a  container that requires postgresql temporarily
-temp: POSTGRES_PASS NAME rm postgresqltemp
+temp: POSTGRES_VERSION pull POSTGRES_PASS NAME rm postgresqltemp
 
 # import
-import: NAME POSTGRES_PASS postgresqlimport
+import: POSTGRES_VERSION pull NAME POSTGRES_PASS postgresqlimport
 
 # run a  container that requires postgresql in production with persistent data
 # HINT: use the grab recipe to grab the data directory automatically from the below postgresqltemp
-prod: NAME POSTGRES_DATADIR POSTGRES_PASS rm postgresqlcid
+prod: NAME POSTGRES_VERSION pull POSTGRES_DATADIR POSTGRES_PASS rm postgresqlcid
 
 # This one is ephemeral and will not persist data
 postgresqltemp:
+	$(eval POSTGRES_VERSION := $(shell cat POSTGRES_VERSION))
 	docker run \
 	--cidfile="postgresqltemp" \
 	--name `cat NAME`-postgresqltemp \
 	-e POSTGRES_ROOT_PASSWORD=`cat POSTGRES_PASS` \
 	-d \
-	postgres:9
+	postgres:$(POSTGRES_VERSION)
 
 # This one will import a sql file 
 postgresqlimport:
+	$(eval POSTGRES_VERSION := $(shell cat POSTGRES_VERSION))
 	docker run \
 	--cidfile="postgresqltemp" \
 	--name `cat NAME`-postgresqltemp \
 	-e postgresql_ROOT_PASSWORD=`cat postgresql_PASS` \
 	-v ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
 	-d \
-	postgres:9
+	postgres:$(POSTGRES_VERSION)
 
 # This is the production block and will use the persistent data
 postgresqlcid:
 	$(eval POSTGRES_DATADIR := $(shell cat POSTGRES_DATADIR))
+	$(eval POSTGRES_VERSION := $(shell cat POSTGRES_VERSION))
 	docker run \
 	--cidfile="postgresqlcid" \
 	--name `cat NAME`-postgresql \
 	-e POSTGRES_ROOT_PASSWORD=`cat POSTGRES_PASS` \
 	-d \
 	-v $(POSTGRES_DATADIR):/var/lib/postgresql \
-	postgres:9
+	postgres:$(POSTGRES_VERSION)
+
+pull:
+	$(eval POSTGRES_VERSION := $(shell cat POSTGRES_VERSION))
+	docker pull \
+	postgres:$(POSTGRES_VERSION)
 
 kill:
 	-@docker kill `cat postgresqlcid`
@@ -109,6 +117,11 @@ grabpostgresqldatadir:
 POSTGRES_DATADIR:
 	@while [ -z "$$POSTGRES_DATADIR" ]; do \
 		read -r -p "Enter the destination of the postgresql data directory you wish to associate with this container [POSTGRES_DATADIR]: " POSTGRES_DATADIR; echo "$$POSTGRES_DATADIR">>POSTGRES_DATADIR; cat POSTGRES_DATADIR; \
+	done ;
+
+POSTGRES_VERSION:
+	@while [ -z "$$POSTGRES_VERSION" ]; do \
+		read -r -p "Enter the version of the postgresql you wish to associate with this container, please see the official postgres docker image for available version tags [POSTGRES_VERSION]: " POSTGRES_VERSION; echo "$$POSTGRES_VERSION">>POSTGRES_VERSION; cat POSTGRES_VERSION; \
 	done ;
 
 POSTGRES_PASS:
