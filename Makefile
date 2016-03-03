@@ -13,14 +13,14 @@ help:
 	@echo ""   3. make logs      - follow the logs of docker container
 
 # run a  container that requires postgresql temporarily
-temp: POSTGRES_VERSION pull POSTGRES_PASS NAME postgresqltemp
+temp: POSTGRES_VERSION pull POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD NAME postgresqltemp
 
 # import
-import: POSTGRES_VERSION pull NAME POSTGRES_PASS postgresqlimport
+import: POSTGRES_VERSION pull NAME POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD postgresqlimport
 
 # run a  container that requires postgresql in production with persistent data
 # HINT: use the grab recipe to grab the data directory automatically from the below postgresqltemp
-prod: NAME POSTGRES_VERSION pull POSTGRES_DATADIR POSTGRES_PASS postgresqlcid
+prod: NAME POSTGRES_VERSION pull POSTGRES_DATADIR postgresqlcid
 
 # This one is ephemeral and will not persist data
 postgresqltemp:
@@ -28,17 +28,21 @@ postgresqltemp:
 	docker run \
 	--cidfile="postgresqltemp" \
 	--name `cat NAME`-postgresqltemp \
-	-e POSTGRES_ROOT_PASSWORD=`cat POSTGRES_PASS` \
+	-e POSTGRES_PASSWORD=`cat POSTGRES_PASSWORD` \
+	-e POSTGRES_DB=`cat POSTGRES_DB` \
+	-e POSTGRES_USER=`cat POSTGRES_USER` \
 	-d \
 	postgres:$(POSTGRES_VERSION)
 
-# This one will import a sql file 
+# This one will import a sql file
 postgresqlimport:
 	$(eval POSTGRES_VERSION := $(shell cat POSTGRES_VERSION))
 	docker run \
 	--cidfile="postgresqltemp" \
 	--name `cat NAME`-postgresqltemp \
-	-e POSTGRES_ROOT_PASSWORD=`cat POSTGRES_PASS` \
+	-e POSTGRES_PASSWORD=`cat POSTGRES_PASSWORD` \
+	-e POSTGRES_DB=`cat POSTGRES_DB` \
+	-e POSTGRES_USER=`cat POSTGRES_USER` \
 	-v `pwd`/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d \
 	-d \
 	postgres:$(POSTGRES_VERSION)
@@ -50,7 +54,6 @@ postgresqlcid:
 	docker run \
 	--cidfile="postgresqlcid" \
 	--name `cat NAME`-postgresql \
-	-e POSTGRES_ROOT_PASSWORD=`cat POSTGRES_PASS` \
 	-d \
 	-v $(POSTGRES_DATADIR):/var/lib/postgresql \
 	postgres:$(POSTGRES_VERSION)
@@ -128,7 +131,17 @@ POSTGRES_VERSION:
 		read -r -p "Enter the version of the postgresql you wish to associate with this container, please see the official postgres docker image for available version tags [POSTGRES_VERSION]: " POSTGRES_VERSION; echo "$$POSTGRES_VERSION">>POSTGRES_VERSION; cat POSTGRES_VERSION; \
 	done ;
 
-POSTGRES_PASS:
-	@while [ -z "$$POSTGRES_PASS" ]; do \
-		read -r -p "Enter the postgresql password you wish to associate with this container [POSTGRES_PASS]: " POSTGRES_PASS; echo "$$POSTGRES_PASS">>POSTGRES_PASS; cat POSTGRES_PASS; \
+POSTGRES_PASSWORD:
+	@while [ -z "$$POSTGRES_PASSWORD" ]; do \
+		read -r -p "Enter the postgresql password you wish to associate with this container [POSTGRES_PASSWORD]: " POSTGRES_PASSWORD; echo "$$POSTGRES_PASSWORD">>POSTGRES_PASSWORD; cat POSTGRES_PASSWORD; \
+	done ;
+
+POSTGRES_USER:
+	@while [ -z "$$POSTGRES_USER" ]; do \
+		read -r -p "Enter the postgresql user you wish to associate with this container [POSTGRES_USER]: " POSTGRES_USER; echo "$$POSTGRES_USER">>POSTGRES_USER; cat POSTGRES_USER; \
+	done ;
+
+POSTGRES_DB:
+	@while [ -z "$$POSTGRES_DB" ]; do \
+		read -r -p "Enter the postgresql db name you wish to associate with this container [POSTGRES_DB]: " POSTGRES_DB; echo "$$POSTGRES_DB">>POSTGRES_DB; cat POSTGRES_DB; \
 	done ;
