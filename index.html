@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>Mkpostgres by joshuacox</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Mkpostgres</h1>
+        <h2>Make a persistent postgres container PDQ</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/joshuacox/mkpostgres/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/joshuacox/mkpostgres/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/joshuacox/mkpostgres" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a id="mkpostgres" class="anchor" href="#mkpostgres" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>mkpostgres</h1>
+
+<p>Make a persistent postgres container PDQ!</p>
+
+<h3>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h3>
+
+<h4>
+<a id="initialization-or-temp-use" class="anchor" href="#initialization-or-temp-use" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Initialization or Temp use</h4>
+
+<p><code>make temp</code> will make a temporary ephemeral fresh postgresql instance</p>
+
+<p><code>make templogs</code> to watch the postgresql process startup and initialize its databases</p>
+
+<p>you now have a fresh postgres install to experiment with 
+you can stop here and start playing with postgres IF you do not need persistent data</p>
+
+<h3>
+<a id="persisten-data" class="anchor" href="#persisten-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Persisten Data</h3>
+
+<p>when the initialization of the temp container finishes (not before) you can then
+<code>make grab</code> which will make a <code>datadir</code> in the current directory and copy out <code>/var/lib/postgresql</code> out
+of the temporary container to be used in a persistent setup</p>
+
+<p>at this point you can move the datadir wherever you so desire,
+just be sure and update the <code>POSTGRES_DATADIR</code> file in this directory
+as that is how the makefile knows where to mount from</p>
+
+<h4>
+<a id="removal-of-the-temp-container" class="anchor" href="#removal-of-the-temp-container" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Removal of the temp container</h4>
+
+<p><code>make rmtemp</code> will clean up our temporary container, but will not delete the <code>datadir</code></p>
+
+<h4>
+<a id="production" class="anchor" href="#production" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Production</h4>
+
+<p>We are now set to start our persistent database</p>
+
+<p><code>make prod</code> will then use the <code>datadir</code> and start up our container in persistent mode</p>
+
+<h4>
+<a id="import" class="anchor" href="#import" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Import</h4>
+
+<p>alternative to <code>make temp</code> is the <code>make import</code> which will mount docker-entrypoint-initdb.d into 
+the container, at which point entry-point.sh will execute everything in there that ends in <code>.sh</code> or <code>.sql</code></p>
+
+<h4>
+<a id="restart" class="anchor" href="#restart" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Restart</h4>
+
+<p>restart the container with <code>make rm</code> followed by <code>make prod</code></p>
+
+<h4>
+<a id="migration" class="anchor" href="#migration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Migration</h4>
+
+<p>to migrate simply tar up this directory along with the datadir and move to the new docker host</p>
+      </section>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-69335315-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
