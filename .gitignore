@@ -3,3 +3,4 @@ postgresqltemp
 datadir
 POSTGRES_*
 NAME
+pull

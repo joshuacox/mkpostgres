@@ -13,14 +13,14 @@ help:
 	@echo ""   3. make logs      - follow the logs of docker container
 
 # run a  container that requires postgresql temporarily
-temp: POSTGRES_VERSION pull POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD NAME postgresqltemp
+temp: POSTGRES_VERSION POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD NAME pull postgresqltemp
 
 # import
-import: POSTGRES_VERSION pull NAME POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD postgresqlimport
+import: POSTGRES_VERSION pull NAME POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD pull postgresqlimport
 
 # run a  container that requires postgresql in production with persistent data
 # HINT: use the grab recipe to grab the data directory automatically from the below postgresqltemp
-prod: NAME POSTGRES_VERSION pull POSTGRES_DATADIR postgresqlcid
+prod: NAME POSTGRES_VERSION POSTGRES_DATADIR pull postgresqlcid
 
 # This one is ephemeral and will not persist data
 postgresqltemp:
@@ -62,6 +62,7 @@ pull:
 	$(eval POSTGRES_VERSION := $(shell cat POSTGRES_VERSION))
 	docker pull \
 	postgres:$(POSTGRES_VERSION)
+	date -I>pull
 
 kill:
 	-@docker kill `cat postgresqlcid`
@@ -115,6 +116,11 @@ rmtemp: rmpostgresqltemp
 rmall: rm rmpostgresqltemp rmpostgresql
 
 grab: grabpostgresqldatadir
+
+clean: rmall rmpull
+
+rmpull:
+	-@rm -f pull
 
 grabpostgresqldatadir:
 	-mkdir -p datadir
