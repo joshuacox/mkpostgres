@@ -13,7 +13,7 @@ Make a persistent postgres container PDQ!
 you now have a fresh postgres install to experiment with 
 you can stop here and start playing with postgres IF you do not need persistent data
 
-### Persisten Data
+### Persistent Data
 
 when the initialization of the temp container finishes (not before) you can then
 `make grab` which will make a `datadir` in the current directory and copy out `/var/lib/postgresql` out
