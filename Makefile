@@ -107,6 +107,8 @@ postgresqltemp-rmkill:
 	-@docker rm `cat postgresqltemp`
 	-@rm postgresqltemp
 
+rmtemp: rmpostgresqltemp
+
 rmall: rm rmpostgresqltemp rmpostgresql
 
 grab: grabpostgresqldatadir
