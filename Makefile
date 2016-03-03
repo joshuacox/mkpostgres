@@ -15,6 +15,10 @@ help:
 # run a  container that requires postgresql temporarily
 temp: POSTGRES_VERSION POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD NAME pull postgresqltemp
 
+# like temp but does not fork off into background
+# careful as ctrl-C now kills the container
+debug: POSTGRES_VERSION POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD NAME pull postgresqldebug
+
 # import
 import: POSTGRES_VERSION pull NAME POSTGRES_USER POSTGRES_DB POSTGRES_PASSWORD pull postgresqlimport
 
@@ -32,6 +36,17 @@ postgresqltemp:
 	-e POSTGRES_DB=`cat POSTGRES_DB` \
 	-e POSTGRES_USER=`cat POSTGRES_USER` \
 	-d \
+	postgres:$(POSTGRES_VERSION)
+
+# This one is ephemeral and will not persist data
+postgresqldebug:
+	$(eval POSTGRES_VERSION := $(shell cat POSTGRES_VERSION))
+	docker run \
+	--cidfile="postgresqltemp" \
+	--name `cat NAME`-postgresqltemp \
+	-e POSTGRES_PASSWORD=`cat POSTGRES_PASSWORD` \
+	-e POSTGRES_DB=`cat POSTGRES_DB` \
+	-e POSTGRES_USER=`cat POSTGRES_USER` \
 	postgres:$(POSTGRES_VERSION)
 
 # This one will import a sql file
